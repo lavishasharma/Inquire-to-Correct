@@ -16,7 +16,7 @@ def get_phrases(tree, label):
     else:
         return results
 
-class AnswerSelector:
+class EntityGenerator:
     def __init__(self, args):
         
         # args used during generation
