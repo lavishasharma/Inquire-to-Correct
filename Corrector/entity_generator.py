@@ -30,40 +30,38 @@ class EntityGenerator:
 
     
 
-    def select_answers(self, sample: Dict):
-        '''
-        This function delete time-related information and store it in `time_removed_tweet`.
-        '''
-        doc = self.nlp(sample['input_claim'])
-        stanza_doc = self.stanza_nlp(sample['input_claim'])
-        
-        ents = [ent.text for sent in doc.sents for ent in sent.noun_chunks] 
-        ents += [ent.text  for sent in doc.sents for ent in sent.ents]
-        ents += [phrase for sent in stanza_doc.sentences for phrase in get_phrases(sent.constituency, 'NP')]
-        ents += [phrase for sent in stanza_doc.sentences for phrase in get_phrases(sent.constituency, 'VP')]
-        ents += [word.text for sent in stanza_doc.sentences for word in sent.words if word.upos in ['VERB','ADV','ADJ','NOUN']]
-        
-
-
-        # negation
-        negations = [word for word in ['not','never'] if word in sample['input_claim']]
-
-        # look for middle part: relation/ verb
-        middle = []
-        start_match = ''
-        end_match = ''
-        for ent in ents:
-            # look for longest match string
-            if sample['input_claim'].startswith(ent) and len(ent) > len(start_match):
-                start_match = ent
-            if sample['input_claim'].endswith(ent+'.') and len(ent) > len(end_match):
-                end_match = ent
-        
-        
-        if len(start_match) > 0 and len(end_match) > 0:
+    def select_answers(self, sample):
+        for i in tqdm(range(len(sample))):
+            doc = self.nlp(sample[i]['input_claim'])
+            stanza_doc = self.stanza_nlp(sample[i]['input_claim'])
             
-            middle.append(sample['input_claim'][len(start_match):-len(end_match)-1].strip())
+            ents = [ent.text for sent in doc.sents for ent in sent.noun_chunks] 
+            ents += [ent.text  for sent in doc.sents for ent in sent.ents]
+            ents += [phrase for sent in stanza_doc.sentences for phrase in get_phrases(sent.constituency, 'NP')]
+            ents += [phrase for sent in stanza_doc.sentences for phrase in get_phrases(sent.constituency, 'VP')]
+            ents += [word.text for sent in stanza_doc.sentences for word in sent.words if word.upos in ['VERB','ADV','ADJ','NOUN']]
             
-        sample['candidate_answers'] = list(set(ents + negations + middle))
-        sample['candidate_answers'].remove('')
+    
+    
+            # negation
+            negations = [word for word in ['not','never'] if word in sample[i]['input_claim']]
+    
+            # look for middle part: relation/ verb
+            middle = []
+            start_match = ''
+            end_match = ''
+            for ent in ents:
+                # look for longest match string
+                if sample[i]['input_claim'].startswith(ent) and len(ent) > len(start_match):
+                    start_match = ent
+                if sample[i]['input_claim'].endswith(ent+'.') and len(ent) > len(end_match):
+                    end_match = ent
+            
+            
+            if len(start_match) > 0 and len(end_match) > 0:
+                
+                middle.append(sample[i]['input_claim'][len(start_match):-len(end_match)-1].strip())
+                
+            sample[i]['candidate_answers'] = list(set(ents + negations + middle))
+            sample[i]['candidate_answers'].remove('')
         return sample
