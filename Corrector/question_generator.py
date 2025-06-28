@@ -11,7 +11,15 @@ class QuestionGenerator:
             stop=["]"],
             include_stop_str_in_output=True
         )
-        self.instruction = args.question_prompt
+        self.instruction = """As a question generator, your task is to produce a variety of questions (extractive and abstractive) for a given answer and context. Given an answer and a context as input, your goal is to generate abstractive, extractive, and yes/no questions from the context sentence, such that the answer to these questions is the word or phrase given as input. Please provide at least one question for each type of question (abstractive, extractive, yes/no) and enclose each question in double quotations.
+Generate atleast 5 questions.
+
+For example:
+
+Input:
+Context: John's cat weighs 30 pounds.
+Answer: 'John's cat'
+Output: ["Whose cat weighs 30 pounds?", "What weighs 30 pounds?", "What does John have that weighs 30 pounds?", "Which pet of whose pet weighs 30 pounds?", "Which pet of John's weighs 30 pounds?"]"""
 
     def generate(self, samples: list):
         o_id={}
